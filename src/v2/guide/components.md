@@ -29,7 +29,7 @@ Vue.component('my-component', {
 })
 ```
 
-<p class="tip">Note that Vue does not enforce the [W3C rules](http://www.w3.org/TR/custom-elements/#concepts) for custom tag names (all-lowercase, must contain a hyphen) though following this convention is considered good practice.</p>
+<p class="tip">Note that Vue does not enforce the [W3C rules](https://www.w3.org/TR/custom-elements/#concepts) for custom tag names (all-lowercase, must contain a hyphen) though following this convention is considered good practice.</p>
 
 Once registered, a component can be used in an instance's template as a custom element, `<my-component></my-component>`. Make sure the component is registered **before** you instantiate the root Vue instance. Here's the full example:
 
@@ -121,7 +121,7 @@ Therefore, prefer using string templates whenever possible.
 
 ### `data` Must Be a Function
 
-Most of the options that can be passed into the Vue constructor can be used in a component, with one special case: `data` must be function. In fact, if you try this:
+Most of the options that can be passed into the Vue constructor can be used in a component, with one special case: `data` must be a function. In fact, if you try this:
 
 ``` js
 Vue.component('my-component', {
@@ -217,7 +217,7 @@ new Vue({
 
 Components are meant to be used together, most commonly in parent-child relationships: component A may use component B in its own template. They inevitably need to communicate to one another: the parent may need to pass data down to the child, and the child may need to inform the parent of something that happened in the child. However, it is also very important to keep the parent and the child as decoupled as possible via a clearly-defined interface. This ensures each component's code can be written and reasoned about in relative isolation, thus making them more maintainable and potentially easier to reuse.
 
-In Vue.js, the parent-child component relationship can be summarized as **props down, events up**. The parent passes data down to the child via **props**, and the child sends messages to the parent via **events**. Let's see how they work next.
+In Vue, the parent-child component relationship can be summarized as **props down, events up**. The parent passes data down to the child via **props**, and the child sends messages to the parent via **events**. Let's see how they work next.
 
 <p style="text-align: center">
   <img style="width:300px" src="/images/props-events.png" alt="props down, events up">
@@ -327,6 +327,30 @@ new Vue({
 </script>
 {% endraw %}
 
+If you want to pass all the properties in an object as props, you can use `v-bind` without an argument (`v-bind` instead of `v-bind:prop-name`). For example, given a `todo` object:
+
+``` js
+todo: {
+  text: 'Learn Vue',
+  isComplete: false
+}
+```
+
+Then:
+
+``` html
+<todo-item v-bind="todo"></todo-item>
+```
+
+Will be equivalent to:
+
+``` html
+<todo-item
+  v-bind:text="todo.text"
+  v-bind:is-complete="todo.isComplete"
+></todo-item>
+```
+
 ### Literal vs. Dynamic
 
 A common mistake beginners tend to make is attempting to pass down a number using the literal syntax:
@@ -432,7 +456,45 @@ The `type` can be one of the following native constructors:
 
 In addition, `type` can also be a custom constructor function and the assertion will be made with an `instanceof` check.
 
-When a prop validation fails, Vue will produce a console warning (if using the development build).
+When prop validation fails, Vue will produce a console warning (if using the development build). Note that props are validated __before__ a component instance is created, so within `default` or `validator` functions, instance properties such as from `data`, `computed`, or `methods` will not be available.
+
+## Non-Prop Attributes
+
+A non-prop attribute is an attribute that is passed to a component, but does not have a corresponding prop defined.
+
+While explicitly defined props are preferred for passing information to a child component, authors of component libraries can't always foresee the contexts in which their components might be used. That's why components can accept arbitrary attributes, which are added to the component's root element.
+
+For example, imagine we're using a 3rd-party `bs-date-input` component with a Bootstrap plugin that requires a `data-3d-date-picker` attribute on the `input`. We can add this attribute to our component instance:
+
+``` html
+<bs-date-input data-3d-date-picker="true"></bs-date-input>
+```
+
+And the `data-3d-date-picker="true"` attribute will automatically be added to the root element of `bs-date-input`.
+
+### Replacing/Merging with Existing Attributes
+
+Imagine this is the template for `bs-date-input`:
+
+``` html
+<input type="date" class="form-control">
+```
+
+To specify a theme for our date picker plugin, we might need to add a specific class, like this:
+
+``` html
+<bs-date-input
+  data-3d-date-picker="true"
+  class="date-picker-theme-dark"
+></bs-date-input>
+```
+
+In this case, two different values for `class` are defined:
+
+- `form-control`, which is set by the component in its template
+- `date-picker-theme-dark`, which is passed to the component by its parent
+
+For most attributes, the value provided to the component will replace the value set by the component. So for example, passing `type="large"` will replace `type="date"` and probably break it! Fortunately, the `class` and `style` attributes are a little smarter, so both values are merged, making the final value: `form-control date-picker-theme-dark`.
 
 ## Custom Events
 
@@ -445,7 +507,7 @@ Every Vue instance implements an [events interface](../api/#Instance-Methods-Eve
 - Listen to an event using `$on(eventName)`
 - Trigger an event using `$emit(eventName)`
 
-<p class="tip">Note that Vue's event system is separate from the browser's [EventTarget API](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget). Though they work similarly, `$on` and `$emit` are __not__ aliases for `addEventListener` and `dispatchEvent`.</p>
+<p class="tip">Note that Vue's event system is different from the browser's [EventTarget API](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget). Though they work similarly, `$on` and `$emit` are __not__ aliases for `addEventListener` and `dispatchEvent`.</p>
 
 In addition, a parent component can listen to the events emitted from a child component using `v-on` directly in the template where the child component is used.
 
@@ -463,14 +525,14 @@ Here's an example:
 
 ``` js
 Vue.component('button-counter', {
-  template: '<button v-on:click="increment">{{ counter }}</button>',
+  template: '<button v-on:click="incrementCounter">{{ counter }}</button>',
   data: function () {
     return {
       counter: 0
     }
   },
   methods: {
-    increment: function () {
+    incrementCounter: function () {
       this.counter += 1
       this.$emit('increment')
     }
@@ -498,14 +560,14 @@ new Vue({
 </div>
 <script>
 Vue.component('button-counter', {
-  template: '<button v-on:click="increment">{{ counter }}</button>',
+  template: '<button v-on:click="incrementCounter">{{ counter }}</button>',
   data: function () {
     return {
       counter: 0
     }
   },
   methods: {
-    increment: function () {
+    incrementCounter: function () {
       this.counter += 1
       this.$emit('increment')
     }
@@ -527,7 +589,7 @@ new Vue({
 
 In this example, it's important to note that the child component is still completely decoupled from what happens outside of it. All it does is report information about its own activity, just in case a parent component might care.
 
-#### Binding Native Events to Components
+### Binding Native Events to Components
 
 There may be times when you want to listen for a native event on the root element of a component. In these cases, you can use the `.native` modifier for `v-on`. For example:
 
@@ -543,7 +605,7 @@ In some cases we may need "two-way binding" for a prop - in fact, in Vue 1.x thi
 
 This is why we removed the `.sync` modifier when 2.0 was released. However, we've found that there are indeed cases where it could be useful, especially when shipping reusable components. What we need to change is **making the code in the child that affects parent state more consistent and explicit.**
 
-In 2.3 we re-introduced the `.sync` modifier for props, but this time it is just syntax sugar that automatically expands into an additional `v-on` listener:
+In 2.3.0+ we re-introduced the `.sync` modifier for props, but this time it is just syntax sugar that automatically expands into an additional `v-on` listener:
 
 The following
 
@@ -579,7 +641,7 @@ is just syntactic sugar for:
   v-on:input="something = $event.target.value">
 ```
 
-When used with a component, this simplifies to:
+When used with a component, it instead simplifies to:
 
 ``` html
 <custom-input
@@ -601,15 +663,15 @@ Let's see it in action with a very simple currency input:
 
 ``` js
 Vue.component('currency-input', {
-  template: `
-    <span>
-      $
-      <input
-        ref="input"
-        v-bind:value="value"
-        v-on:input="updateValue($event.target.value)">
-    </span>
-  `,
+  template: '\
+    <span>\
+      $\
+      <input\
+        ref="input"\
+        v-bind:value="value"\
+        v-on:input="updateValue($event.target.value)">\
+    </span>\
+  ',
   props: ['value'],
   methods: {
     // Instead of updating the value directly, this
@@ -685,7 +747,7 @@ The implementation above is pretty naive though. For example, users are allowed 
 
 ### Customizing Component `v-model`
 
-> New in 2.2.0
+> New in 2.2.0+
 
 By default, `v-model` on a component uses `value` as the prop and `input` as the event, but some input types such as checkboxes and radio buttons may want to use the `value` prop for a different purpose. Using the `model` option can avoid the conflict in such cases:
 
@@ -897,7 +959,7 @@ The content distribution API is a very useful mechanism when designing component
 
 ### Scoped Slots
 
-> New in 2.1.0
+> New in 2.1.0+
 
 A scoped slot is a special type of slot that functions as a reusable template (that can be passed data to) instead of already-rendered-elements.
 
@@ -909,7 +971,7 @@ In a child component, simply pass data into a slot as if you are passing props t
 </div>
 ```
 
-In the parent, a `<template>` element with a special attribute `scope` indicates that it is a template for a scoped slot. The value of `scope` is the name of a temporary variable that holds the props object passed from the child:
+In the parent, a `<template>` element with a special attribute `scope` must exist, indicating that it is a template for a scoped slot. The value of `scope` is the name of a temporary variable that holds the props object passed from the child:
 
 ``` html
 <div class="parent">
@@ -1072,7 +1134,7 @@ Vue.component('async-example', function (resolve, reject) {
 })
 ```
 
-The factory function receives a `resolve` callback, which should be called when you have retrieved your component definition from the server. You can also call `reject(reason)` to indicate the load has failed. The `setTimeout` here is simply for demonstration; How to retrieve the component is entirely up to you. One recommended approach is to use async components together with [Webpack's code-splitting feature](https://webpack.js.org/guides/code-splitting-require/):
+The factory function receives a `resolve` callback, which should be called when you have retrieved your component definition from the server. You can also call `reject(reason)` to indicate the load has failed. The `setTimeout` here is simply for demonstration; How to retrieve the component is entirely up to you. One recommended approach is to use async components together with [Webpack's code-splitting feature](https://webpack.js.org/guides/code-splitting/):
 
 ``` js
 Vue.component('async-webpack-example', function (resolve) {
@@ -1107,9 +1169,9 @@ new Vue({
 
 ### Advanced Async Components
 
-> New in 2.3.0
+> New in 2.3.0+
 
-Starting in 2.3 the async component factory can also return an object of the following format:
+Starting in 2.3.0+ the async component factory can also return an object of the following format:
 
 ``` js
 const AsyncComp = () => ({
@@ -1244,13 +1306,13 @@ However, if you're requiring/importing components using a __module system__, e.g
 Failed to mount component: template or render function not defined.
 ```
 
-To explain what's happening, I'll call our components A and B. The module system sees that it needs A, but first A needs B, but B needs A, but A needs B, etc, etc. It's stuck in a loop, not knowing how to fully resolve either component without first resolving the other. To fix this, we need to give the module system a point at which it can say, "A needs B _eventually_, but there's no need to resolve B first."
+To explain what's happening, let's call our components A and B. The module system sees that it needs A, but first A needs B, but B needs A, but A needs B, etc, etc. It's stuck in a loop, not knowing how to fully resolve either component without first resolving the other. To fix this, we need to give the module system a point at which it can say, "A needs B _eventually_, but there's no need to resolve B first."
 
-In our case, I'll make that point the `tree-folder` component. We know the child that creates the paradox is the `tree-folder-contents` component, so we'll wait until the `beforeCreate` lifecycle hook to register it:
+In our case, let's make that point the `tree-folder` component. We know the child that creates the paradox is the `tree-folder-contents` component, so we'll wait until the `beforeCreate` lifecycle hook to register it:
 
 ``` js
 beforeCreate: function () {
-  this.$options.components.TreeFolderContents = require('./tree-folder-contents.vue')
+  this.$options.components.TreeFolderContents = require('./tree-folder-contents.vue').default
 }
 ```
 

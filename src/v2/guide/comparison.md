@@ -1,7 +1,7 @@
 ---
 title: Comparison with Other Frameworks
 type: guide
-order: 29
+order: 801
 ---
 
 This is definitely the most difficult page in the guide to write, but we do feel it's important. Odds are, you've had problems you tried to solve and you've used another library to solve them. You're here because you want to know if Vue can solve your specific problems better. That's what we hope to answer for you.
@@ -68,9 +68,11 @@ On a higher level, we can divide components into two categories: presentational 
 
 #### Component-Scoped CSS
 
-Unless you spread components out over multiple files (for example with [CSS Modules](https://github.com/gajus/react-css-modules)), scoping CSS in React is often done via CSS-in-JS solutions. There are many competing solutions out there, each with its own caveats. A common issue is that features such as hover states, media queries, and pseudo-selectors either require heavy dependencies to reinvent what CSS already does - or they simply are not supported. If not optimized carefully, CSS-in-JS can also introduce non-trivial runtime performance cost. Most importantly, it deviates from the experience of authoring normal CSS.
+Unless you spread components out over multiple files (for example with [CSS Modules](https://github.com/gajus/react-css-modules)), scoping CSS in React is often done via CSS-in-JS solutions (e.g. [styled-components](https://github.com/styled-components/styled-components), [glamorous](https://github.com/paypal/glamorous), and [emotion](https://github.com/emotion-js/emotion)). This introduces a new component-oriented styling paradigm that is different from the normal CSS authoring process. Additionally, although there is support for extracting CSS into a single stylesheet at build time, it is still common that a runtime will need to be included in the bundle for styling to work properly. While you gain access to the dynamism of JavaScript while constructing your styles, the tradeoff is often increased bundle size and runtime cost.
 
-Vue on the other hand, gives you full access to CSS within [single-file components](single-file-components.html):
+If you are a fan of CSS-in-JS, many of the popular CSS-in-JS libraries support Vue (e.g. [styled-components-vue](https://github.com/styled-components/vue-styled-components) and [vue-emotion](https://github.com/egoist/vue-emotion)). The main difference between React and Vue here is that the default method of styling in Vue is through more familiar `style` tags in [single-file components](single-file-components.html).
+
+[Single-file components](single-file-components.html) give you full access to CSS in the same file as the rest of your component code.
 
 ``` html
 <style scoped>
@@ -84,9 +86,7 @@ Vue on the other hand, gives you full access to CSS within [single-file componen
 
 The optional `scoped` attribute automatically scopes this CSS to your component by adding a unique attribute (such as `data-v-21e5b78`) to elements and compiling `.list-container:hover` to something like `.list-container[data-v-21e5b78]:hover`.
 
-If you are already familiar with CSS Modules, Vue single file components also have [first-class support for it](http://vue-loader.vuejs.org/en/features/css-modules.html).
-
-Finally, just as with HTML, you also have the option of writing your CSS using any preprocessors (or post-processors) you'd like, allowing you to leverage existing libraries in those ecosystems. You can also perform design-centric operations such as color manipulation during your build process, rather than importing specialized JavaScript libraries that would increase the size of your build and complexity of your application.
+Lastly, the styling in Vue's single-file component's is very flexible. Through [vue-loader](https://github.com/vuejs/vue-loader), you can use any preprocessor, post-processor, and even deep integration with [CSS Modules](https://vue-loader.vuejs.org/en/features/css-modules.html) -- all within the `<style>` element.
 
 ### Scale
 
@@ -111,7 +111,7 @@ React is renowned for its steep learning curve. Before you can really get starte
 While Vue scales up just as well as, if not better than React, it also scales down just as well as jQuery. That's right - all you have to do is drop a single script tag into a page:
 
 ``` html
-<script src="https://unpkg.com/vue/dist/vue.js"></script>
+<script src="https://unpkg.com/vue"></script>
 ```
 
 Then you can start writing Vue code and even ship the minified version to production without feeling guilty or having to worry about performance problems.
@@ -120,9 +120,11 @@ Since you don't need to know about JSX, ES2015, or build systems to get started 
 
 ### Native Rendering
 
-React Native enables you to write native-rendered apps for iOS and Android using the same React component model. This is great in that as a developer, you can apply your knowledge of a framework across multiple platforms. On this front, Vue has an official collaboration with [Weex](https://alibaba.github.io/weex/), a cross-platform UI framework developed by Alibaba Group, which uses Vue as its JavaScript framework runtime. This means with Weex, you can use the same Vue component syntax to author components that can not only be rendered in the Browser, but also natively on iOS and Android!
+React Native enables you to write native-rendered apps for iOS and Android using the same React component model. This is great in that as a developer, you can apply your knowledge of a framework across multiple platforms. On this front, Vue has an official collaboration with [Weex](https://alibaba.github.io/weex/), a cross-platform UI framework developed by Alibaba Group, which uses Vue as its JavaScript framework runtime. This means with Weex, you can use the same Vue component syntax to author components that can not only be rendered in the browser, but also natively on iOS and Android!
 
 At this moment, Weex is still in active development and is not as mature and battle-tested as React Native, but its development is driven by the production needs of the largest e-commerce business in the world, and the Vue team will also actively collaborate with the Weex team to ensure a smooth experience for Vue developers.
+
+Another option Vue developers will soon have is [NativeScript](https://www.nativescript.org/), via a [community-driven plugin](https://github.com/rigor789/nativescript-vue).
 
 ### With MobX
 
@@ -174,7 +176,7 @@ Finally, although not as deeply integrated with TypeScript as Angular is, Vue al
 
 In terms of performance, both frameworks are exceptionally fast and there isn't enough data from real world use cases to make a verdict. However if you are determined to see some numbers, Vue 2.0 seems to be ahead of Angular according to this [3rd party benchmark](http://stefankrause.net/js-frameworks-benchmark4/webdriver-ts/table.html).
 
-Recent versions of Angular, with AOT compilation and tree-shaking, have been able to get its size down considerably. However, a full-featured Vue 2 project with Vuex + vue-router included (~30kb gzipped) is still significantly lighter than an out-of-the-box, AOT-compiled application generated by `angular-cli` (~130kb gzipped).
+Recent versions of Angular, with AOT compilation and tree-shaking, have been able to get its size down considerably. However, a full-featured Vue 2 project with Vuex + Vue Router included (~30kb gzipped) is still significantly lighter than an out-of-the-box, AOT-compiled application generated by `angular-cli` (~130kb gzipped).
 
 ### Flexibility
 

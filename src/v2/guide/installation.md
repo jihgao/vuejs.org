@@ -2,11 +2,11 @@
 title: Installation
 type: guide
 order: 1
-vue_version: 2.3.0
-dev_size: "247.31"
-min_size: "76.64"
-gz_size: "28.03"
-ro_gz_size: "19.54"
+vue_version: 2.4.0
+dev_size: "257.91"
+min_size: "79.71"
+gz_size: "28.96"
+ro_gz_size: "20.18"
 ---
 
 ### Compatibility Note
@@ -16,6 +16,10 @@ Vue does **not** support IE8 and below, because it uses ECMAScript 5 features th
 ### Release Notes
 
 Detailed release notes for each version are available on [GitHub](https://github.com/vuejs/vue/releases).
+
+## Vue Devtools
+
+When using Vue, we recommend also installing the [Vue Devtools](https://github.com/vuejs/vue-devtools#vue-devtools) in your browser, allowing you to inspect and debug your Vue applications in a more user-friendly interface.
 
 ## Direct `<script>` Include
 
@@ -33,7 +37,7 @@ Simply download and include with a script tag. `Vue` will be registered as a glo
 
 Recommended: [https://unpkg.com/vue](https://unpkg.com/vue), which will reflect the latest version as soon as it is published to npm. You can also browse the source of the npm package at [https://unpkg.com/vue/](https://unpkg.com/vue/).
 
-Also available on [jsDelivr](//cdn.jsdelivr.net/vue/latest/vue.js) or [cdnjs](//cdnjs.cloudflare.com/ajax/libs/vue/{{vue_version}}/vue.js), but these two services take some time to sync so the latest release may not be available yet.
+Also available on [jsDelivr](https://cdn.jsdelivr.net/npm/vue/dist/vue.js) or [cdnjs](https://cdnjs.cloudflare.com/ajax/libs/vue/{{vue_version}}/vue.js), but these two services take some time to sync so the latest release may not be available yet.
 
 ## NPM
 
@@ -84,16 +88,16 @@ In the [`dist/` directory of the NPM package](https://unpkg.com/vue@latest/dist/
 
 - **[CommonJS](http://wiki.commonjs.org/wiki/Modules/1.1)**: CommonJS builds are intended for use with older bundlers like [browserify](http://browserify.org/) or [webpack 1](https://webpack.github.io). The default file for these bundlers (`pkg.main`) is the Runtime only CommonJS build (`vue.runtime.common.js`).
 
-- **[ES Module](http://exploringjs.com/es6/ch_modules.html)**: ES module builds are intended for use with modern bundlers like [webpack 2](https://webpack.js.org) or [rollup](http://rollupjs.org/). The default file for these bundlers (`pkg.module`) is the Runtime only ES Module build (`vue.runtime.esm.js`).
+- **[ES Module](http://exploringjs.com/es6/ch_modules.html)**: ES module builds are intended for use with modern bundlers like [webpack 2](https://webpack.js.org) or [rollup](https://rollupjs.org/). The default file for these bundlers (`pkg.module`) is the Runtime only ES Module build (`vue.runtime.esm.js`).
 
 ### Runtime + Compiler vs. Runtime-only
 
-If you need to compile templates on the fly (e.g. passing a string to the `template` option, or mounting to an element using its in-DOM HTML as the template), you will need the compiler and thus the full build:
+If you need to compile templates on the client (e.g. passing a string to the `template` option, or mounting to an element using its in-DOM HTML as the template), you will need the compiler and thus the full build:
 
 ``` js
 // this requires the compiler
 new Vue({
-  template: `<div>{{ hi }}</div>`
+  template: '<div>{{ hi }}</div>'
 })
 
 // this does not

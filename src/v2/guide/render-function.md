@@ -1,7 +1,7 @@
 ---
-title: Render Functions
+title: Render Functions & JSX
 type: guide
-order: 15
+order: 303
 ---
 
 ## Basics
@@ -28,26 +28,24 @@ When you get started with a component that just generates a heading based on the
 
 ``` html
 <script type="text/x-template" id="anchored-heading-template">
-  <div>
-    <h1 v-if="level === 1">
-      <slot></slot>
-    </h1>
-    <h2 v-if="level === 2">
-      <slot></slot>
-    </h2>
-    <h3 v-if="level === 3">
-      <slot></slot>
-    </h3>
-    <h4 v-if="level === 4">
-      <slot></slot>
-    </h4>
-    <h5 v-if="level === 5">
-      <slot></slot>
-    </h5>
-    <h6 v-if="level === 6">
-      <slot></slot>
-    </h6>
-  </div>
+  <h1 v-if="level === 1">
+    <slot></slot>
+  </h1>
+  <h2 v-else-if="level === 2">
+    <slot></slot>
+  </h2>
+  <h3 v-else-if="level === 3">
+    <slot></slot>
+  </h3>
+  <h4 v-else-if="level === 4">
+    <slot></slot>
+  </h4>
+  <h5 v-else-if="level === 5">
+    <slot></slot>
+  </h5>
+  <h6 v-else-if="level === 6">
+    <slot></slot>
+  </h6>
 </script>
 ```
 
@@ -63,7 +61,7 @@ Vue.component('anchored-heading', {
 })
 ```
 
-That template doesn't feel great. It's not only verbose, but we're duplicating `<slot></slot>` for every heading level and will have to do the same when we add the anchor element. The whole thing is also wrapped in a useless `div` because components must contain exactly one root node.
+That template doesn't feel great. It's not only verbose, but we're duplicating `<slot></slot>` for every heading level and will have to do the same when we add the anchor element.
 
 While templates work great for most components, it's clear that this isn't one of them. So let's try rewriting it with a `render` function:
 
@@ -84,11 +82,57 @@ Vue.component('anchored-heading', {
 })
 ```
 
-Much simpler! Sort of. The code is shorter, but also requires greater familiarity with Vue instance properties. In this case, you have to know that when you pass children without a `slot` attribute into a component, like the `Hello world!` inside of `anchored-heading`, those children are stored on the component instance at `$slots.default`. If you haven't already, **it's recommended to read through the [instance properties API](../api/#vm-slots) before diving into render functions.**
+Much simpler! Sort of. The code is shorter, but also requires greater familiarity with Vue instance properties. In this case, you have to know that when you pass children without a `slot` attribute into a component, like the `Hello world!` inside of `anchored-heading`, those children are stored on the component instance at `$slots.default`. If you haven't already, **it's recommended to read through the [instance properties API](../api/#Instance-Properties) before diving into render functions.**
+
+## Nodes, Trees, and the Virtual DOM
+
+Before we dive into render functions, it’s important to know a little about how browsers work. Take this HTML for example:
+
+```html
+<div>
+  <h1>My title</h1>
+  Some text content
+  <!-- TODO: Add tagline  -->
+</div>
+```
+
+When a browser reads this code, it builds a [tree of "DOM nodes"](https://javascript.info/dom-nodes) to help it keep track of everything, just as you might build a family tree to keep track of your extended family.
+
+The tree of DOM nodes for the HTML above looks like this:
+
+![DOM Tree Visualization](/images/dom-tree.png)
+
+Every element is a node. Every piece of text is a node. Even comments are nodes! A node is just a piece of the page. And just as in a family tree, each node can have children (i.e. each piece can contain other pieces).
+
+Updating all these nodes efficiently can be difficult, but thankfully, you never have to do it manually. You just tell Vue what HTML you want on the page, in a template:
+
+```html
+<h1>{{ blogTitle }}</h1>
+```
+
+Or a render function:
+
+``` js
+render: function (createElement) {
+  return createElement('h1', this.blogTitle)
+}
+```
+
+And in both cases, Vue automatically keeps the page updated, even when `blogTitle` changes.
+
+### The Virtual DOM
+
+Vue accomplishes this by building a **virtual DOM** to keep track of the changes it needs to make to the real DOM. Taking a closer look at this line:
+
+``` js
+return createElement('h1', this.blogTitle)
+```
+
+What is `createElement` actually returning? It's not _exactly_ a real DOM element. It could perhaps more accurately be named `createNodeDescription`, as it contains information describing to Vue what kind of node it should render on the page, including descriptions of any child nodes. We call this node description a "virtual node", usually abbreviated to **VNode**. "Virtual DOM" is what we call the entire tree of VNodes, built by a tree of Vue components.
 
 ## `createElement` Arguments
 
-The second thing you'll have to become familiar with is how to use template features in the `createElement` function. Here are the arguments that `createElement` accepts:
+The next thing you'll have to become familiar with is how to use template features in the `createElement` function. Here are the arguments that `createElement` accepts:
 
 ``` js
 // @returns {VNode}
@@ -106,7 +150,7 @@ createElement(
   },
 
   // {String | Array}
-  // Children VNodes, built using createElement(),
+  // Children VNodes, built using `createElement()`,
   // or simply using strings to get 'text VNodes'. Optional.
   [
     'Some text comes first.',
@@ -148,8 +192,8 @@ One thing to note: similar to how `v-bind:class` and `v-bind:style` have special
   domProps: {
     innerHTML: 'baz'
   },
-  // Event handlers are nested under "on", though
-  // modifiers such as in v-on:keyup.enter are not
+  // Event handlers are nested under `on`, though
+  // modifiers such as in `v-on:keyup.enter` are not
   // supported. You'll have to manually check the
   // keyCode in the handler instead.
   on: {
@@ -157,7 +201,7 @@ One thing to note: similar to how `v-bind:class` and `v-bind:style` have special
   },
   // For components only. Allows you to listen to
   // native events, rather than events emitted from
-  // the component using vm.$emit.
+  // the component using `vm.$emit`.
   nativeOn: {
     click: this.nativeClickHandler
   },
@@ -311,10 +355,11 @@ This is the cost of going lower-level, but it also gives you much more control o
 
 ### Event & Key Modifiers
 
-For the `.capture` and `.once` event modifiers, Vue offers prefixes that can be used with `on`:
+For the `.passive`, `.capture` and `.once` event modifiers, Vue offers prefixes that can be used with `on`:
 
 | Modifier(s) | Prefix |
 | ------ | ------ |
+| `.passive` | `&` |
 | `.capture` | `!` |
 | `.once` | `~` |
 | `.capture.once` or<br>`.once.capture` | `~!` |
@@ -366,7 +411,7 @@ You can access static slot contents as Arrays of VNodes from [`this.$slots`](../
 
 ``` js
 render: function (createElement) {
-  // <div><slot></slot></div>
+  // `<div><slot></slot></div>`
   return createElement('div', this.$slots.default)
 }
 ```
@@ -375,7 +420,7 @@ And access scoped slots as functions that return VNodes from [`this.$scopedSlots
 
 ``` js
 render: function (createElement) {
-  // <div><slot :text="msg"></slot></div>
+  // `<div><slot :text="msg"></slot></div>`
   return createElement('div', [
     this.$scopedSlots.default({
       text: this.msg
@@ -390,7 +435,7 @@ To pass scoped slots to a child component using render functions, use the `scope
 render (createElement) {
   return createElement('div', [
     createElement('child', {
-      // pass scopedSlots in the data object
+      // pass `scopedSlots` in the data object
       // in the form of { name: props => VNode | Array<VNode> }
       scopedSlots: {
         default: function (props) {
@@ -469,7 +514,7 @@ Vue.component('my-component', {
 })
 ```
 
-> Note: in versions <=2.3.0, the `props` option is required if you wish to accept props in a functional component. In 2.3.0+ you can omit the `props` option and all attributes found on the component node will be implicitly extracted as props.
+> Note: in versions before 2.3.0, the `props` option is required if you wish to accept props in a functional component. In 2.3.0+ you can omit the `props` option and all attributes found on the component node will be implicitly extracted as props.
 
 Everything the component needs is passed through `context`, which is an object containing:
 
@@ -483,9 +528,9 @@ Everything the component needs is passed through `context`, which is an object c
 
 After adding `functional: true`, updating the render function of our anchored heading component would simply require adding the `context` argument, updating `this.$slots.default` to `context.children`, then updating `this.level` to `context.props.level`.
 
-Since functional components are just functions, they're much cheaper to render. However, this also mean that functional components don't show up in VueJS Chrome dev tools component tree.
+Since functional components are just functions, they're much cheaper to render. However, the lack of a persistent instance means they won't show up in the [Vue devtools](https://github.com/vuejs/vue-devtools) component tree.
 
-They're also very useful as wrapper components.  For example, when you need to:
+They're also very useful as wrapper components. For example, when you need to:
 
 - Programmatically choose one of several other components to delegate to
 - Manipulate children, props, or data before passing them on to a child component

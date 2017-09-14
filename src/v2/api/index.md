@@ -79,9 +79,29 @@ type: api
 
   Assign a handler for uncaught errors during component render function and watchers. The handler gets called with the error and the Vue instance.
 
-  > In 2.2.0, this hook also captures errors in component lifecycle hooks. Also, when this hook is `undefined`, captured errors will be logged with `console.error` instead of crashing the app.
+  > In 2.2.0+, this hook also captures errors in component lifecycle hooks. Also, when this hook is `undefined`, captured errors will be logged with `console.error` instead of crashing the app.
+
+  > In 2.4.0+ this hook also captures errors thrown inside Vue custom event handlers.
 
   > [Sentry](https://sentry.io), an error tracking service, provides [official integration](https://sentry.io/for/vue/) using this option.
+
+### warnHandler
+
+> New in 2.4.0+
+
+- **Type:** `Function`
+
+- **Default:** `undefined`
+
+- **Usage:**
+
+  ``` js
+  Vue.config.warnHandler = function (msg, vm, trace) {
+    // `trace` is the component hierarchy trace
+  }
+  ```
+
+  Assign a custom handler for runtime Vue warnings. Note this only works during development and is ignored in production.
 
 ### ignoredElements
 
@@ -114,7 +134,7 @@ type: api
     // camelCase won`t work
     mediaPlayPause: 179,
     // instead you can use kebab-case with double quotation marks
-    "media-play-pause" : 179,
+    "media-play-pause": 179,
     up: [38, 87]
   }
   ```
@@ -123,15 +143,15 @@ type: api
   <input type="text" @keyup.media-play-pause="method">
   ```
 
-  Define custom key alias(es) for v-on.
+  Define custom key alias(es) for `v-on`.
 
 ### performance
 
-> New in 2.2.0
+> New in 2.2.0+
 
 - **Type:** `boolean`
 
-- **Default:** `false (from 2.2.3)`
+- **Default:** `false (from 2.2.3+)`
 
 - **Usage**:
 
@@ -139,7 +159,7 @@ type: api
 
 ### productionTip
 
-> New in 2.2.0
+> New in 2.2.0+
 
 - **Type:** `boolean`
 
@@ -209,7 +229,7 @@ type: api
   })
   ```
 
-  > New in 2.1.0: returns a Promise if no callback is provided and Promise is supported in the execution environment.
+  > New in 2.1.0+: returns a Promise if no callback is provided and Promise is supported in the execution environment.
 
 - **See also:** [Async Update Queue](../guide/reactivity.html#Async-Update-Queue)
 
@@ -234,13 +254,13 @@ type: api
 
 - **Arguments:**
   - `{Object | Array} target`
-  - `{string | number} key`
+  - `{string | number} key/index`
+
+  > Only in 2.2.0+: Also works with Array + index.
 
 - **Usage:**
 
   Delete a property on an object. If the object is reactive, ensure the deletion triggers view updates. This is primarily used to get around the limitation that Vue cannot detect property deletions, but you should rarely need to use it.
-
-  > Also works with on Array + index in 2.2.0+.
 
   <p class="tip">The target object cannot be a Vue instance, or the root data object of a Vue instance.</p>
 
@@ -342,7 +362,7 @@ type: api
 
   Apply a mixin globally, which affects every Vue instance created afterwards. This can be used by plugin authors to inject custom behavior into components. **Not recommended in application code**.
 
-- **See also:** [Global Mixins](../guide/mixins.html#Global-Mixin)
+- **See also:** [Global Mixin](../guide/mixins.html#Global-Mixin)
 
 <h3 id="Vue-compile">Vue.compile( template )</h3>
 
@@ -373,17 +393,17 @@ type: api
 
 - **Usage**:
 
-```js
-var version = Number(Vue.version.split('.')[0])
+  ```js
+  var version = Number(Vue.version.split('.')[0])
 
-if (version === 2) {
-  // Vue v2.x.x
-} else if (version === 1) {
-  // Vue v1.x.x
-} else {
-  // Unsupported versions of Vue
-}
-```
+  if (version === 2) {
+    // Vue v2.x.x
+  } else if (version === 1) {
+    // Vue v1.x.x
+  } else {
+    // Unsupported versions of Vue
+  }
+  ```
 
 ## Options / Data
 
@@ -416,8 +436,8 @@ if (version === 2) {
   var vm = new Vue({
     data: data
   })
-  vm.a // -> 1
-  vm.$data === data // -> true
+  vm.a // => 1
+  vm.$data === data // => true
 
   // must use function when in Vue.extend()
   var Component = Vue.extend({
@@ -525,14 +545,13 @@ if (version === 2) {
       }
     }
   })
-  vm.aPlus   // -> 2
+  vm.aPlus   // => 2
   vm.aPlus = 3
-  vm.a       // -> 2
-  vm.aDouble // -> 4
+  vm.a       // => 2
+  vm.aDouble // => 4
   ```
 
-- **See also:**
-  - [Computed Properties](../guide/computed.html)
+- **See also:** [Computed Properties](../guide/computed.html)
 
 ### methods
 
@@ -559,7 +578,7 @@ if (version === 2) {
   vm.a // 2
   ```
 
-- **See also:** [Methods and Event Handling](../guide/events.html)
+- **See also:** [Event Handling](../guide/events.html)
 
 ### watch
 
@@ -591,12 +610,12 @@ if (version === 2) {
       }
     }
   })
-  vm.a = 2 // -> new: 2, old: 1
+  vm.a = 2 // => new: 2, old: 1
   ```
 
   <p class="tip">Note that __you should not use an arrow function to define a watcher__ (e.g. `searchQuery: newValue => this.updateAutocomplete(newValue)`). The reason is arrow functions bind the parent context, so `this` will not be the Vue instance as you expect and `this.updateAutocomplete` will be undefined.</p>
 
-- **See also:** [Instance Methods - vm.$watch](#vm-watch)
+- **See also:** [Instance Methods / Data - vm.$watch](#vm-watch)
 
 ## Options / DOM
 
@@ -638,7 +657,7 @@ if (version === 2) {
 
 - **See also:**
   - [Lifecycle Diagram](../guide/instance.html#Lifecycle-Diagram)
-  - [Content Distribution](../guide/components.html#Content-Distribution-with-Slots)
+  - [Content Distribution with Slots](../guide/components.html#Content-Distribution-with-Slots)
 
 ### render
 
@@ -652,12 +671,11 @@ if (version === 2) {
 
     <p class="tip">The `render` function has priority over the render function compiled from `template` option or in-DOM HTML template of the mounting element which is specified by the `el` option.</p>
 
-  - **See also:**
-    - [Render Functions](../guide/render-function)
+  - **See also:** [Render Functions](../guide/render-function.html)
 
 ### renderError
 
-> New in 2.2.0
+> New in 2.2.0+
 
   - **Type:** `(createElement: () => VNode, error: Error) => VNode`
 
@@ -680,12 +698,11 @@ if (version === 2) {
     }).$mount('#app')
     ```
 
-  - **See also:**
-    - [Render Functions](../guide/render-function)
+  - **See also:** [Render Functions](../guide/render-function.html)
 
 ## Options / Lifecycle Hooks
 
-All lifecycle hooks automatically have their `this` context bound to the instance, so that you can access data, computed properties, and methods. This means __you should not use an arrow function to define a lifecycle method__ (e.g. `created: () => this.fetchTodos()`). The reason is arrow functions bind the parent context, so `this` will not be the Vue instance as you expect and `this.fetchTodos` will be undefined.
+<p class="tip">All lifecycle hooks automatically have their `this` context bound to the instance, so that you can access data, computed properties, and methods. This means __you should not use an arrow function to define a lifecycle method__ (e.g. `created: () => this.fetchTodos()`). The reason is arrow functions bind the parent context, so `this` will not be the Vue instance as you expect and `this.fetchTodos` will be undefined.</p>
 
 ### beforeCreate
 
@@ -727,6 +744,17 @@ All lifecycle hooks automatically have their `this` context bound to the instanc
 
   Called after the instance has just been mounted where `el` is replaced by the newly created `vm.$el`. If the root instance is mounted to an in-document element, `vm.$el` will also be in-document when `mounted` is called.
 
+  Note that `mounted` does **not** guarantee that all child components have also been mounted. If you want to wait until the entire view has been rendered, you can use [vm.$nextTick](#vm-nextTick) inside of `mounted`:
+
+  ``` js
+  mounted: function () {
+    this.$nextTick(function () {
+      // Code that will run only after the
+      // entire view has been rendered
+    })
+  }
+  ```
+
   **This hook is not called during server-side rendering.**
 
 - **See also:** [Lifecycle Diagram](../guide/instance.html#Lifecycle-Diagram)
@@ -754,6 +782,17 @@ All lifecycle hooks automatically have their `this` context bound to the instanc
   Called after a data change causes the virtual DOM to be re-rendered and patched.
 
   The component's DOM will have been updated when this hook is called, so you can perform DOM-dependent operations here. However, in most cases you should avoid changing state inside the hook. To react to state changes, it's usually better to use a [computed property](#computed) or [watcher](#watch) instead.
+
+  Note that `updated` does **not** guarantee that all child components have also been re-rendered. If you want to wait until the entire view has been re-rendered, you can use [vm.$nextTick](#vm-nextTick) inside of `updated`:
+
+  ``` js
+  updated: function () {
+    this.$nextTick(function () {
+      // Code that will run only after the
+      // entire view has been re-rendered
+    })
+  }
+  ```
 
   **This hook is not called during server-side rendering.**
 
@@ -821,8 +860,7 @@ All lifecycle hooks automatically have their `this` context bound to the instanc
 
   A hash of directives to be made available to the Vue instance.
 
-- **See also:**
-  - [Custom Directives](../guide/custom-directive.html)
+- **See also:** [Custom Directives](../guide/custom-directive.html)
 
 ### filters
 
@@ -832,8 +870,7 @@ All lifecycle hooks automatically have their `this` context bound to the instanc
 
   A hash of filters to be made available to the Vue instance.
 
-- **See also:**
-  - [`Vue.filter`](#Vue-filter)
+- **See also:** [`Vue.filter`](#Vue-filter)
 
 ### components
 
@@ -843,8 +880,7 @@ All lifecycle hooks automatically have their `this` context bound to the instanc
 
   A hash of components to be made available to the Vue instance.
 
-- **See also:**
-  - [Components](../guide/components.html)
+- **See also:** [Components](../guide/components.html)
 
 ## Options / Composition
 
@@ -878,8 +914,8 @@ All lifecycle hooks automatically have their `this` context bound to the instanc
     created: function () { console.log(2) },
     mixins: [mixin]
   })
-  // -> 1
-  // -> 2
+  // => 1
+  // => 2
   ```
 
 - **See also:** [Mixins](../guide/mixins.html)
@@ -899,7 +935,7 @@ All lifecycle hooks automatically have their `this` context bound to the instanc
   ``` js
   var CompA = { ... }
 
-  // extend CompA without having to call Vue.extend on either
+  // extend CompA without having to call `Vue.extend` on either
   var CompB = {
     extends: CompA,
     ...
@@ -908,7 +944,7 @@ All lifecycle hooks automatically have their `this` context bound to the instanc
 
 ### provide / inject
 
-> New in 2.2.0
+> New in 2.2.0+
 
 - **Type:**
   - **provide:** `Object | () => Object`
@@ -939,7 +975,7 @@ All lifecycle hooks automatically have their `this` context bound to the instanc
   var Child = {
     inject: ['foo'],
     created () {
-      console.log(this.foo) // -> "bar"
+      console.log(this.foo) // => "bar"
     }
     // ...
   }
@@ -963,7 +999,7 @@ All lifecycle hooks automatically have their `this` context bound to the instanc
   }
   ```
 
-  > The next 2 examples only work with Vue > 2.2.1. Below that version, injected values were resolved after the `props` and the `data` initialization.
+  > The next 2 examples work with Vue 2.2.1+. Below that version, injected values were resolved after the `props` and the `data` initialization.
 
   Using an injected value as the default for a prop:
   ```js
@@ -1009,11 +1045,13 @@ All lifecycle hooks automatically have their `this` context bound to the instanc
 
 - **Type:** `Array<string>`
 
-- **default:** `{% raw %}["{{", "}}"]{% endraw %}`
+- **Default:** `{% raw %}["{{", "}}"]{% endraw %}`
+
+- **Restrictions:** This option is only available in the full build, with in-browser compilation.
 
 - **Details:**
 
-  Change the plain text interpolation delimiters. **This option is only available in the full build.**
+  Change the plain text interpolation delimiters.
 
 - **Example:**
 
@@ -1080,6 +1118,34 @@ All lifecycle hooks automatically have their `this` context bound to the instanc
   </my-checkbox>
   ```
 
+### inheritAttrs
+
+> New in 2.4.0+
+
+- **Type:** `boolean`
+
+- **Default:** `true`
+
+- **Details:**
+
+  By default, parent scope attribute bindings that are not recognized as props will "fallthrough" and be applied to the root element of the child component as normal HTML attributes. When authoring a component that wraps a target element or another component, this may not always be the desired behavior. By setting `inheritAttrs` to `false`, this default behavior can be disabled. The attributes are available via the `$attrs` instance property (also new in 2.4) and can be explicitly bound to a non-root element using `v-bind`.
+
+  Note: this option does **not** affect `class` and `style` bindings.
+
+### comments
+
+> New in 2.4.0+
+
+- **Type:** `boolean`
+
+- **Default:** `false`
+
+- **Restrictions:** This option is only available in the full build, with in-browser compilation.
+
+- **Details:**
+
+  When set to `true`, will preserve and render HTML comments found in templates. The default behavior is discarding them.
+
 ## Instance Properties
 
 ### vm.$data
@@ -1090,11 +1156,11 @@ All lifecycle hooks automatically have their `this` context bound to the instanc
 
   The data object that the Vue instance is observing. The Vue instance proxies access to the properties on its data object.
 
-- **See also:** [Options - data](#data)
+- **See also:** [Options / Data - data](#data)
 
 ### vm.$props
 
-> New in 2.2.0
+> New in 2.2.0+
 
 - **Type:** `Object`
 
@@ -1126,7 +1192,7 @@ All lifecycle hooks automatically have their `this` context bound to the instanc
   new Vue({
     customOption: 'foo',
     created: function () {
-      console.log(this.$options.customOption) // -> 'foo'
+      console.log(this.$options.customOption) // => 'foo'
     }
   })
   ```
@@ -1209,11 +1275,11 @@ All lifecycle hooks automatically have their `this` context bound to the instanc
 - **See also:**
   - [`<slot>` Component](#slot-1)
   - [Content Distribution with Slots](../guide/components.html#Content-Distribution-with-Slots)
-  - [Render Functions: Slots](../guide/render-function.html#Slots)
+  - [Render Functions - Slots](../guide/render-function.html#Slots)
 
 ### vm.$scopedSlots
 
-> New in 2.1.0
+> New in 2.1.0+
 
 - **Type:** `{ [name: string]: props => VNode | Array<VNode> }`
 
@@ -1228,7 +1294,7 @@ All lifecycle hooks automatically have their `this` context bound to the instanc
 - **See also:**
   - [`<slot>` Component](#slot-1)
   - [Scoped Slots](../guide/components.html#Scoped-Slots)
-  - [Render Functions: Slots](../guide/render-function.html#Slots)
+  - [Render Functions - Slots](../guide/render-function.html#Slots)
 
 ### vm.$refs
 
@@ -1242,7 +1308,7 @@ All lifecycle hooks automatically have their `this` context bound to the instanc
 
 - **See also:**
   - [Child Component Refs](../guide/components.html#Child-Component-Refs)
-  - [ref](#ref)
+  - [Special Attributes - ref](#ref)
 
 ### vm.$isServer
 
@@ -1256,13 +1322,33 @@ All lifecycle hooks automatically have their `this` context bound to the instanc
 
 - **See also:** [Server-Side Rendering](../guide/ssr.html)
 
+### vm.$attrs
+
+- **Type:** `{ [key: string]: string }`
+
+- **Read only**
+
+- **Details:**
+
+  Contains parent-scope attribute bindings (except for `class` and `style`) that are not recognized (and extracted) as props. When a component doesn't have any declared props, this essentially contains all parent-scope bindings (except for `class` and `style`), and can be passed down to an inner component via `v-bind="$attrs"` - useful when creating higher-order components.
+
+### vm.$listeners
+
+- **Type:** `{ [key: string]: Function | Array<Function> }`
+
+- **Read only**
+
+- **Details:**
+
+  Contains parent-scope `v-on` event listeners (without `.native` modifiers). This can be passed down to an inner component via `v-on="$listeners"` - useful when creating higher-order components.
+
 ## Instance Methods / Data
 
 <h3 id="vm-watch">vm.$watch( expOrFn, callback, [options] )</h3>
 
 - **Arguments:**
   - `{string | Function} expOrFn`
-  - `{Function} callback`
+  - `{Function | Object} callback`
   - `{Object} [options]`
     - `{boolean} deep`
     - `{boolean} immediate`
@@ -1322,7 +1408,7 @@ All lifecycle hooks automatically have their `this` context bound to the instanc
   vm.$watch('a', callback, {
     immediate: true
   })
-  // callback is fired immediately with current value of `a`
+  // `callback` is fired immediately with current value of `a`
   ```
 
 <h3 id="vm-set">vm.$set( target, key, value )</h3>
@@ -1371,7 +1457,7 @@ All lifecycle hooks automatically have their `this` context bound to the instanc
     console.log(msg)
   })
   vm.$emit('test', 'hi')
-  // -> "hi"
+  // => "hi"
   ```
 
 <h3 id="vm-once">vm.$once( event, callback )</h3>
@@ -1387,7 +1473,7 @@ All lifecycle hooks automatically have their `this` context bound to the instanc
 <h3 id="vm-off">vm.$off( [event, callback] )</h3>
 
 - **Arguments:**
-  - `{string} [event]`
+  - `{string | Array<string>} event` (array only supported in 2.2.2+)
   - `{Function} [callback]`
 
 - **Usage:**
@@ -1463,7 +1549,7 @@ All lifecycle hooks automatically have their `this` context bound to the instanc
 
   Defer the callback to be executed after the next DOM update cycle. Use it immediately after you've changed some data to wait for the DOM update. This is the same as the global `Vue.nextTick`, except that the callback's `this` context is automatically bound to the instance calling this method.
 
-  > New in 2.1.0: returns a Promise if no callback is provided and Promise is supported in the execution environment.
+  > New in 2.1.0+: returns a Promise if no callback is provided and Promise is supported in the execution environment.
 
 - **Example:**
 
@@ -1520,7 +1606,7 @@ All lifecycle hooks automatically have their `this` context bound to the instanc
   <span>{{msg}}</span>
   ```
 
-- **See also:** [Data Binding Syntax - interpolations](../guide/syntax.html#Text)
+- **See also:** [Data Binding Syntax - Interpolations](../guide/syntax.html#Text)
 
 ### v-html
 
@@ -1537,7 +1623,8 @@ All lifecycle hooks automatically have their `this` context bound to the instanc
   ```html
   <div v-html="html"></div>
   ```
-- **See also:** [Data Binding Syntax - interpolations](../guide/syntax.html#Raw-HTML)
+
+- **See also:** [Data Binding Syntax - Interpolations](../guide/syntax.html#Raw-HTML)
 
 ### v-show
 
@@ -1584,12 +1671,11 @@ All lifecycle hooks automatically have their `this` context bound to the instanc
   </div>
   ```
 
-- **See also:**
-  - [Conditional Rendering - v-else](../guide/conditional.html#v-else)
+- **See also:** [Conditional Rendering - v-else](../guide/conditional.html#v-else)
 
 ### v-else-if
 
-> New in 2.1.0
+> New in 2.1.0+
 
 - **Expects:** `any`
 
@@ -1658,9 +1744,9 @@ All lifecycle hooks automatically have their `this` context bound to the instanc
 
 - **Shorthand:** `@`
 
-- **Expects:** `Function | Inline Statement`
+- **Expects:** `Function | Inline Statement | Object`
 
-- **Argument:** `event (required)`
+- **Argument:** `event`
 
 - **Modifiers:**
   - `.stop` - call `event.stopPropagation()`.
@@ -1679,6 +1765,8 @@ All lifecycle hooks automatically have their `this` context bound to the instanc
 
   Attaches an event listener to the element. The event type is denoted by the argument. The expression can either be a method name or an inline statement, or simply omitted when there are modifiers present.
 
+  Starting in 2.4.0+, `v-on` also supports binding to an object of event/listener pairs without an argument. Note when using the object syntax, it does not support any modifiers.
+
   When used on a normal element, it listens to **native DOM events** only. When used on a custom element component, it also listens to **custom events** emitted on that child component.
 
   When listening to native DOM events, the method receives the native event as the only argument. If using inline statement, the statement has access to the special `$event` property: `v-on:click="handle('ok', $event)"`.
@@ -1688,6 +1776,9 @@ All lifecycle hooks automatically have their `this` context bound to the instanc
   ```html
   <!-- method handler -->
   <button v-on:click="doThis"></button>
+
+  <!-- object syntax (2.4.0+) -->
+  <button v-on="{ mousedown: doThis, mouseup: doThat }"></button>
 
   <!-- inline statement -->
   <button v-on:click="doThat('hello', $event)"></button>
@@ -1730,7 +1821,7 @@ All lifecycle hooks automatically have their `this` context bound to the instanc
   ```
 
 - **See also:**
-  - [Methods and Event Handling](../guide/events.html)
+  - [Event Handling](../guide/events.html)
   - [Components - Custom Events](../guide/components.html#Custom-Events)
 
 ### v-bind
@@ -1742,7 +1833,7 @@ All lifecycle hooks automatically have their `this` context bound to the instanc
 - **Argument:** `attrOrProp (optional)`
 
 - **Modifiers:**
-  - `.prop` - Bind as a DOM property instead of an attribute. ([what's the difference?](http://stackoverflow.com/questions/6003819/properties-and-attributes-in-html#answer-6004028))
+  - `.prop` - Bind as a DOM property instead of an attribute ([what's the difference?](https://stackoverflow.com/questions/6003819/properties-and-attributes-in-html#answer-6004028)). If the tag is a component then `.prop` will set the property on the component's `$el`.
   - `.camel` - (2.1.0+) transform the kebab-case attribute name into camelCase.
   - `.sync` - (2.3.0+) a syntax sugar that expands into a `v-on` handler for updating the bound value.
 
@@ -1803,7 +1894,7 @@ All lifecycle hooks automatically have their `this` context bound to the instanc
 
 - **See also:**
   - [Class and Style Bindings](../guide/class-and-style.html)
-  - [Components - Component Props](../guide/components.html#Props)
+  - [Components - Props](../guide/components.html#Props)
   - [Components - `.sync` Modifier](../guide/components.html#sync-Modifier)
 
 ### v-model
@@ -1885,7 +1976,7 @@ All lifecycle hooks automatically have their `this` context bound to the instanc
   </div>
   <!-- component -->
   <my-component v-once :comment="msg"></my-component>
-  <!-- v-for directive -->
+  <!-- `v-for` directive -->
   <ul>
     <li v-for="i in list" v-once>{{i}}</li>
   </ul>
@@ -1893,13 +1984,13 @@ All lifecycle hooks automatically have their `this` context bound to the instanc
 
 - **See also:**
   - [Data Binding Syntax - interpolations](../guide/syntax.html#Text)
-  - [Components - Cheap Static Components with v-once](../guide/components.html#Cheap-Static-Components-with-v-once)
+  - [Components - Cheap Static Components with `v-once`](../guide/components.html#Cheap-Static-Components-with-v-once)
 
 ## Special Attributes
 
 ### key
 
-- **Expects:** `string`
+- **Expects:** `number | string`
 
   The `key` special attribute is primarily used as a hint for Vue's virtual DOM algorithm to identify VNodes when diffing the new list of nodes against the old list. Without keys, Vue uses an algorithm that minimizes element movement and tries to patch/reuse elements of the same type in-place as much as possible. With keys, it will reorder elements based on the order change of keys, and elements with keys that are no longer present will always be removed/destroyed.
 
@@ -1970,8 +2061,8 @@ All lifecycle hooks automatically have their `this` context bound to the instanc
   <!-- component changes when currentView changes -->
   <component v-bind:is="currentView"></component>
 
-  <!-- necessary because <my-row> would be invalid inside -->
-  <!-- a <table> element and so would be hoisted out      -->
+  <!-- necessary because `<my-row>` would be invalid inside -->
+  <!-- a `<table>` element and so would be hoisted out      -->
   <table>
     <tr is="my-row"></tr>
   </table>
@@ -2106,8 +2197,8 @@ All lifecycle hooks automatically have their `this` context bound to the instanc
 ### keep-alive
 
 - **Props:**
-  - `include` - string or RegExp. Only components matched by this will be cached.
-  - `exclude` - string or RegExp. Any component matched by this will not be cached.
+  - `include` - string or RegExp or Array. Only components matched by this will be cached.
+  - `exclude` - string or RegExp or Array. Any component matched by this will not be cached.
 
 - **Usage:**
 
@@ -2115,7 +2206,7 @@ All lifecycle hooks automatically have their `this` context bound to the instanc
 
   When a component is toggled inside `<keep-alive>`, its `activated` and `deactivated` lifecycle hooks will be invoked accordingly.
 
-  > In 2.2.0 and above, `activated` and `deactivated` will fire for all nested components inside a `<keep-alive>` tree.
+  > In 2.2.0+ and above, `activated` and `deactivated` will fire for all nested components inside a `<keep-alive>` tree.
 
   Primarily used with preserve component state or avoid re-rendering.
 
@@ -2131,7 +2222,7 @@ All lifecycle hooks automatically have their `this` context bound to the instanc
     <comp-b v-else></comp-b>
   </keep-alive>
 
-  <!-- used together with <transition> -->
+  <!-- used together with `<transition>` -->
   <transition>
     <keep-alive>
       <component :is="view"></component>
@@ -2141,12 +2232,11 @@ All lifecycle hooks automatically have their `this` context bound to the instanc
 
   Note, `<keep-alive>` is designed for the case where it has one direct child component that is being toggled. It does not work if you have `v-for` inside it. When there are multiple conditional children, as above, `<keep-alive>` requires that only one child is rendered at a time.
 
-
 - **`include` and `exclude`**
 
-  > New in 2.1.0
+  > New in 2.1.0+
 
-  The `include` and `exclude` props allow components to be conditionally cached. Both props can either be a comma-delimited string or a RegExp:
+  The `include` and `exclude` props allow components to be conditionally cached. Both props can be a comma-delimited string, a RegExp or an Array:
 
   ``` html
   <!-- comma-delimited string -->
@@ -2154,8 +2244,13 @@ All lifecycle hooks automatically have their `this` context bound to the instanc
     <component :is="view"></component>
   </keep-alive>
 
-  <!-- regex (use v-bind) -->
+  <!-- regex (use `v-bind`) -->
   <keep-alive :include="/a|b/">
+    <component :is="view"></component>
+  </keep-alive>
+
+  <!-- Array (use `v-bind`) -->
+  <keep-alive :include="['a', 'b']">
     <component :is="view"></component>
   </keep-alive>
   ```
